@@ -16,16 +16,23 @@ from sgtk.platform.qt import QtCore, QtGui
 from .file_action import FileAction
 from ..scene_operation import save_file, SAVE_FILE_AS_ACTION
 
+import sgtk
+logger = sgtk.platform.get_logger(__name__)
 
 class SaveAsFileAction(FileAction):
     """ """
 
     def __init__(self, file_item, environment):
         """ """
-        FileAction.__init__(self, "Save As", file_item, None, environment)
+        self.log('file_item is {}, environment is: {}'.format(file_item, environment))
+        self.log('In SaveAsFileAction init: 1 ')
+        #FileAction.__init__(self, "Save As", file_item, None, environment)
+        FileAction.__init__(self, "Save As", file_item, environment)
+        self.log('In SaveAsFileAction init: 2 ')
 
     def execute(self, parent_ui):
         """ """
+        self.log('execute 10 ')
         if (
             not self.file
             or not self.file.path
@@ -33,7 +40,7 @@ class SaveAsFileAction(FileAction):
             or not self.environment.context
         ):
             return False
-
+        self.log('execute 20 ')
         # switch context:
         previous_context = self._app.context
         if not self.environment.context == self._app.context:
@@ -54,12 +61,13 @@ class SaveAsFileAction(FileAction):
 
         # and save the current file as the new path:
         try:
+            self.log('self.environment.context is {}, file path is: {}'.format(self.environment.context, self.file.path))
             save_file(
                 self._app, SAVE_FILE_AS_ACTION, self.environment.context, self.file.path
             )
         except Exception as e:
             QtGui.QMessageBox.critical(
-                None, "Failed to save file!", "Failed to save file:\n\n%s" % e
+                None, "Failed to save file!", "Failed to save file  :\n\n%s" % e
             )
             self._app.log_exception("Failed to save file!")
             FileAction.restore_context(parent_ui, previous_context)
@@ -72,3 +80,11 @@ class SaveAsFileAction(FileAction):
             pass
 
         return True
+
+    def log(self, msg, error=0):
+        if logger:
+            if error:
+                logger.warn(msg)
+            else:
+                logger.info(msg)
+        print(msg)

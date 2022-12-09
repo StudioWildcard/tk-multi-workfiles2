@@ -13,6 +13,9 @@ from sgtk import TankError
 from tank_vendor import six
 from sgtk.platform.qt import QtGui, QtCore
 
+import sgtk
+logger = sgtk.platform.get_logger(__name__)
+
 from .framework_qtwidgets import MessageBox
 
 (
@@ -131,11 +134,18 @@ def prepare_new_scene(app, action, context):
 def save_file(app, action, context, path=None):
     """
     Use hook to save the current file
+
     """
+    log('app is {}'.format(app))
+    log('action is {}'.format(action))
+    log('context is {}'.format(context))
+    log('path is {}'.format(path))
     if path != None:
+        log('path is {}'.format(path))
         app.log_debug("Saving the current file as '%s' with hook" % path)
         _do_scene_operation(app, action, context, "save_as", path)
     else:
+        log('no path')
         app.log_debug("Saving the current file with hook")
         _do_scene_operation(app, action, context, "save")
 
@@ -250,3 +260,11 @@ def check_references(app, action, context, parent_ui):
         QtGui.QApplication.restoreOverrideCursor()
 
     return result
+
+def log(msg, error=0):
+    if logger:
+        if error:
+            logger.warn(msg)
+        else:
+            logger.info(msg)
+    print(msg)

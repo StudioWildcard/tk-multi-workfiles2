@@ -31,7 +31,7 @@ from .util import value_to_str
 from .errors import MissingTemplatesError
 
 from .actions.save_as_file_action import SaveAsFileAction
-
+logger = sgtk.platform.get_logger(__name__)
 
 class FileSaveForm(FileFormBase):
     """
@@ -665,7 +665,6 @@ class FileSaveForm(FileFormBase):
         app = sgtk.platform.current_bundle()
         if not self._current_env:
             return
-
         # generate the path to save to and do any pre-save preparation:
         path_to_save = ""
         try:
@@ -683,14 +682,14 @@ class FileSaveForm(FileFormBase):
                     "Failed to create folders for context '%s' - %s"
                     % (self._current_env.context, e)
                 )
-
+            self.log(
+                'self.environment.context is {}, file path is: {}'.format(self.environment.context, self.file.path))
             # get the name, version and extension from the UI:
             name = value_to_str(self._ui.name_edit.text())
             version = self._ui.version_spinner.value()
             use_next_version = self._ui.use_next_available_cb.isChecked()
             ext_idx = self._ui.file_type_menu.currentIndex()
             ext = self._extension_choices[ext_idx] if ext_idx >= 0 else ""
-
             # now attempt to generate the path to save to:
             version_to_save = None
             try:
@@ -710,7 +709,6 @@ class FileSaveForm(FileFormBase):
             except TankError as e:
                 app.log_exception("File Save - failed to generate path to save to!")
                 raise TankError("Failed to generate a path to save to - %s" % e)
-
             if (
                 version_to_save is not None  # version is used in the path
                 and version_to_save != version
@@ -756,7 +754,6 @@ class FileSaveForm(FileFormBase):
                 )
                 if answer == QtGui.QMessageBox.Cancel:
                     return False
-
             # finally, make sure that the folder exists - this will handle any leaf folders that aren't
             # created during folder creation (e.g. a dynamic static folder that isn't part of the schema)
             dir = os.path.dirname(path_to_save)
@@ -775,15 +772,26 @@ class FileSaveForm(FileFormBase):
             )
             app.log_exception("Failed to save file!")
             return
-
         # construct a temporary file item:
         file_item = FileItem(key=None, is_work_file=True, work_path=path_to_save)
-
+        self.log('_on_save 1')
         # Build and execute the save action:
         action = SaveAsFileAction(file_item, self._current_env)
+        #action = SaveAsFileAction("Save As", file_item, None, self._current_env)
+        self.log('_on_save 2')
         file_saved = action.execute(self)
-
+        self.log('_on_save 3')
         if file_saved:
             # all good - lets close the dialog
             self._exit_code = QtGui.QDialog.Accepted
             self.close()
+
+    def log(self, msg, error=0):
+        if logger:
+            if error:
+                logger.warn(msg)
+            else:
+                logger.info(msg)
+        print(msg)
+
+
