@@ -121,6 +121,7 @@ def get_model_data(item_or_index, role=QtCore.Qt.DisplayRole):
     :param role:            The Qt data role to return data for
     :returns:               The data for the specified item or index.
     """
+    # get the data for the specified role:
     data = item_or_index.data(role)
     if hasattr(QtCore, "QVariant") and isinstance(data, QtCore.QVariant):
         # handle PyQt!
@@ -138,6 +139,7 @@ def get_model_str(item_or_index, role=QtCore.Qt.DisplayRole):
     :returns:               A Python string representing the data for the specified item
                             or index.
     """
+    # get the data for the specified role:
     data = get_model_data(item_or_index, role)
     return value_to_str(data)
 
