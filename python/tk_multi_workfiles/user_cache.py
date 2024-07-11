@@ -114,7 +114,7 @@ class UserCache(Threaded):
 
         # Execute hook for getting user login.
         try:
-            login_name = self._app.execute_hook_method(
+            login_name = self._app.engine.execute_in_main_thread(self._app.execute_hook_method,
                 "user_login_hook",
                 "get_login",
                 path=path,

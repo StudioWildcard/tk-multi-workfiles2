@@ -788,7 +788,7 @@ class FileSaveForm(FileFormBase):
         if file_saved:
             # Execute hook for saving additional user login.
             try:
-                result = app.execute_hook_method(
+                result = app.engine.execute_in_main_thread(app.execute_hook_method,
                     "user_login_hook",
                     "save_user",
                     work_path=path_to_save,

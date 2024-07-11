@@ -66,7 +66,7 @@ def _do_scene_operation(
     result = None
     QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
     try:
-        result = app.execute_hook(
+        result = app.engine.execute_in_main_thread(app.execute_hook,
             "hook_scene_operation",
             operation=operation,
             file_path=path,

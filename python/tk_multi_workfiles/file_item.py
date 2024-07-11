@@ -274,7 +274,7 @@ class FileItem(object):
         if self._is_local:
             # We're a work file - get the badge for the work file from the hook:
             try:
-                self._badge = app.execute_hook_method(
+                self._badge = app.engine.execute_in_main_thread(app.execute_hook_method,
                     "hook_get_badge",
                     "get_work_file_badge",
                     work_file_details=self._details,
@@ -291,7 +291,7 @@ class FileItem(object):
         elif self._is_published:
             # We're a publish - get the badge for the publish from the hook:
             try:
-                self._badge = app.execute_hook_method(
+                self._badge = app.engine.execute_in_main_thread(app.execute_hook_method,
                     "hook_get_badge",
                     "get_publish_badge",
                     publish_details=self._publish_details,
@@ -309,7 +309,7 @@ class FileItem(object):
         if isinstance(self._badge, QtGui.QColor):
             # If the hook returned a QColor, we'll create a dot badge of that color.
             try:
-                self._badge = app.execute_hook_method(
+                self._badge = app.engine.execute_in_main_thread(app.execute_hook_method,
                     "hook_get_badge", "generate_badge_pixmap", badge_color=self._badge
                 )
             except Exception:

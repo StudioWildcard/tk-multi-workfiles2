@@ -66,7 +66,7 @@ class CustomFileAction(FileAction):
         # execute hook method to get actions:
         action_info = []
         try:
-            action_info = app.execute_hook_method(
+            action_info = app.engine.execute_in_main_thread(app.execute_hook_method,
                 "custom_actions_hook",
                 "generate_actions",
                 file=hook_file,
@@ -116,7 +116,7 @@ class CustomFileAction(FileAction):
         # execute hook method to execute action:
         result = False
         try:
-            result = app.execute_hook_method(
+            result = app.engine.execute_in_main_thread(app.execute_hook_method,
                 "custom_actions_hook",
                 "execute_action",
                 action=self._name,
