@@ -30,6 +30,7 @@ task_manager = sgtk.platform.import_framework(
 BackgroundTaskManager = task_manager.BackgroundTaskManager
 
 swc_fw = sgtk.platform.get_framework("tk-framework-swc")
+swc_context_utils = swc_fw.import_module("Context_Utils")
 
 from .work_area import WorkArea
 from .util import monitor_qobject_lifetime, Threaded
@@ -570,8 +571,9 @@ class FileFinder(QtCore.QObject):
         )
 
         # SWC: Double check paths against our custom task context 
+        # TODO: Should this be handled in the filter_workfiles hook??
         for path in list(work_file_paths):
-            target_context = swc_fw.find_task_context(path)
+            target_context = swc_context_utils.find_task_context(path)
             if target_context.task != context.task:
                 work_file_paths.remove(path)
         return work_file_paths
