@@ -12,6 +12,7 @@
 Implementation of the entity tree widget consisting of a tree view that displays the
 contents of a Shotgun Data Model, a text search and a filter control.
 """
+
 import weakref
 
 import sgtk
@@ -25,6 +26,7 @@ from ..util import (
     map_to_source,
     get_source_model,
     monitor_qobject_lifetime,
+    create_case_insensitive_regex,
 )
 from ..util import get_sg_entity_name_field
 from ..entity_models import ShotgunDeferredEntityModel
@@ -120,6 +122,9 @@ class EntityTreeForm(QtGui.QWidget):
         )
         self._ui.search_ctrl.set_placeholder_text("Search %s" % search_label)
         self._ui.search_ctrl.setToolTip("Press enter to complete the search")
+
+        # Task status filter
+        self._ui.task_status_combo.hide()
 
         # Hide the my-tasks-only checkbox if we are showing tasks, or if the entity
         # model is making use of deferred queries. In the latter case, we don't
@@ -524,10 +529,9 @@ class EntityTreeForm(QtGui.QWidget):
         prev_selected_item = self._reset_selection()
         try:
             # update the proxy filter search text:
-            filter_reg_exp = QtCore.QRegExp(
-                search_text, QtCore.Qt.CaseInsensitive, QtCore.QRegExp.FixedString
-            )
-            self._ui.entity_tree.model().setFilterRegExp(filter_reg_exp)
+            filter_reg_exp = create_case_insensitive_regex(search_text)
+            if self._ui.entity_tree.model():
+                self._ui.entity_tree.model().setFilterRegExp(filter_reg_exp)
         finally:
             # and update the selection - this will restore the original selection if possible.
             self._update_selection(prev_selected_item)

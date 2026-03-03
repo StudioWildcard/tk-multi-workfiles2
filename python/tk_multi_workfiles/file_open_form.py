@@ -38,7 +38,7 @@ class FileOpenForm(FileFormBase):
     def __init__(self, parent=None):
         """Construction"""
 
-        super(FileOpenForm, self).__init__(parent)
+        super().__init__(parent)
 
         self._app = sgtk.platform.current_bundle()
 
@@ -60,7 +60,7 @@ class FileOpenForm(FileFormBase):
 
     def _do_init(self):
         """ """
-        super(FileOpenForm, self)._do_init()
+        super()._do_init()
 
         # start by disabling buttons:
         self._ui.change_ctx_btn.hide()
@@ -112,15 +112,15 @@ class FileOpenForm(FileFormBase):
     def _on_browser_file_selected(self, file, env):
         """ """
         self._on_selected_file_changed(file, env)
-        self._update_new_file_btn(env)
+        if file:
+            # Only validate the button state if a file is selected.
+            self._update_new_file_btn(env)
 
     def _on_browser_work_area_changed(self, entity, breadcrumbs):
         """
         Slot triggered whenever the work area is changed in the browser.
         """
-        env_details = super(FileOpenForm, self)._on_browser_work_area_changed(
-            entity, breadcrumbs
-        )
+        env_details = super()._on_browser_work_area_changed(entity, breadcrumbs)
         self._update_new_file_btn(env_details)
 
     def _on_browser_file_double_clicked(self, file, env):

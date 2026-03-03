@@ -11,11 +11,35 @@
 """
 Various utility methods used by the app code
 """
+
 import threading
 
 import sgtk
 from sgtk.platform.qt import QtCore, QtGui
-from tank_vendor import six
+
+
+def create_case_insensitive_regex(pattern):
+    """
+    Create a case-insensitive regular expression compatible with both PySide2 and PySide6.
+
+    In PySide6, QRegExp was replaced with QRegularExpression. The patcher in tk-core
+    has issues mapping the case sensitivity options correctly, so we create the
+    QRegularExpression directly when available.
+
+    :param pattern: The search pattern string
+    :returns: A QRegExp or QRegularExpression configured for case-insensitive matching
+    """
+    # Check if QRegularExpression is available (PySide6)
+    if hasattr(QtCore, "QRegularExpression"):
+        # Use QRegularExpression with CaseInsensitiveOption for PySide6
+        regex = QtCore.QRegularExpression(pattern)
+        regex.setPatternOptions(QtCore.QRegularExpression.CaseInsensitiveOption)
+        return regex
+    else:
+        # Fall back to QRegExp for PySide2
+        return QtCore.QRegExp(
+            pattern, QtCore.Qt.CaseInsensitive, QtCore.QRegExp.FixedString
+        )
 
 
 class Threaded(object):
@@ -77,11 +101,7 @@ def value_to_str(value):
     if hasattr(QtCore, "QVariant") and isinstance(value, QtCore.QVariant):
         value = value.toPyObject()
 
-    # Take unicode strings from Python 2 and utf-8 encode them.
-    if six.PY2 and isinstance(value, six.text_type):
-        # encode to str utf-8
-        return value.encode("utf-8")
-    elif isinstance(value, str):
+    if isinstance(value, str):
         # it's a string anyway so just return
         return value
     elif hasattr(QtCore, "QString") and isinstance(value, QtCore.QString):
